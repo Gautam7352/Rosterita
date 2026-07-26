@@ -140,6 +140,18 @@ function balanceDailyShifts(
   const shiftsNeeded: ShiftType[] = ['Morning', 'Afternoon', 'Night'];
 
   shiftsNeeded.forEach((targetShift) => {
+    // 1. Remove surplus staff if we have more than required
+    while (counts[targetShift] > staffPerShift) {
+      const surplusCandidates = dayAssignments.filter(a => a.shift === targetShift);
+      if (surplusCandidates.length === 0) break;
+      // Convert the last one found to 'Leave'
+      const toRemove = surplusCandidates[surplusCandidates.length - 1];
+      toRemove.shift = 'Leave';
+      counts[targetShift]--;
+      counts['Leave']++;
+    }
+
+    // 2. Fill deficit if we have less than required
     let attempts = 0;
     while (counts[targetShift] < staffPerShift && attempts < 8) {
       attempts++;
@@ -363,7 +375,17 @@ export function auditRoster(
         description: `Day ${day}: Morning shift has ${mCount}/${staffPerShift} staff members assigned.`,
         severity: 'critical',
       });
+    } else if (mCount > staffPerShift) {
+      violations.push({
+        id: `v-m-over-${day}`,
+        memberId: 'system',
+        day,
+        type: 'Overstaffed',
+        description: `Day ${day}: Morning shift has ${mCount}/${staffPerShift} staff. Max allowed is ${staffPerShift}.`,
+        severity: 'warning',
+      });
     }
+    
     if (aCount < staffPerShift) {
       isDayUnderstaffed = true;
       violations.push({
@@ -374,7 +396,17 @@ export function auditRoster(
         description: `Day ${day}: Afternoon shift has ${aCount}/${staffPerShift} staff members assigned.`,
         severity: 'critical',
       });
+    } else if (aCount > staffPerShift) {
+      violations.push({
+        id: `v-a-over-${day}`,
+        memberId: 'system',
+        day,
+        type: 'Overstaffed',
+        description: `Day ${day}: Afternoon shift has ${aCount}/${staffPerShift} staff. Max allowed is ${staffPerShift}.`,
+        severity: 'warning',
+      });
     }
+
     if (nCount < staffPerShift) {
       isDayUnderstaffed = true;
       violations.push({
@@ -384,6 +416,15 @@ export function auditRoster(
         type: 'Understaffed',
         description: `Day ${day}: Night shift has ${nCount}/${staffPerShift} staff members assigned.`,
         severity: 'critical',
+      });
+    } else if (nCount > staffPerShift) {
+      violations.push({
+        id: `v-n-over-${day}`,
+        memberId: 'system',
+        day,
+        type: 'Overstaffed',
+        description: `Day ${day}: Night shift has ${nCount}/${staffPerShift} staff. Max allowed is ${staffPerShift}.`,
+        severity: 'warning',
       });
     }
 

@@ -109,7 +109,7 @@ export const RosterGrid: React.FC<RosterGridProps> = ({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+    <div id="roster-grid-container" className="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
       {/* Legend Header */}
       <div className="bg-slate-50 border-b border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-3">
@@ -149,8 +149,9 @@ export const RosterGrid: React.FC<RosterGridProps> = ({
         <table className="w-full text-left border-collapse min-w-[1100px]">
           <thead>
             <tr className="bg-slate-100 text-slate-700 text-xs font-bold border-b border-slate-200">
-              <th className="sticky left-0 z-20 bg-slate-100 p-2.5 w-48 border-r border-slate-200 shadow-xs">
-                Console Engineer
+              <th className="sticky left-0 z-20 bg-slate-100 p-2 sm:p-2.5 w-20 min-w-[80px] max-w-[80px] sm:w-48 sm:min-w-[192px] sm:max-w-[192px] border-r border-slate-200 shadow-xs overflow-hidden">
+                <span className="hidden sm:inline">Console Engineer</span>
+                <span className="sm:hidden text-[10px]">Engineer</span>
               </th>
               {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
                 const dayName = getDayName(day, month, year);
@@ -174,17 +175,17 @@ export const RosterGrid: React.FC<RosterGridProps> = ({
             {members.map((member) => (
               <tr key={member.id} className="hover:bg-slate-50 transition-colors">
                 {/* Member Info */}
-                <td className="sticky left-0 z-10 bg-white border-r border-slate-200 p-2 shadow-xs">
-                  <div className="flex items-center gap-2">
+                <td className="sticky left-0 z-10 bg-white border-r border-slate-200 p-2 shadow-xs group-hover:bg-slate-50 w-20 min-w-[80px] max-w-[80px] sm:w-48 sm:min-w-[192px] sm:max-w-[192px] overflow-hidden">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-white text-[10px] shrink-0"
+                      className="hidden sm:flex w-6 h-6 rounded-full items-center justify-center font-bold text-white text-[10px] shrink-0"
                       style={{ backgroundColor: member.avatarColor }}
                     >
                       {member.name.split(' ').map((n) => n[0]).join('')}
                     </div>
                     <div className="min-w-0">
-                      <div className="font-bold text-slate-900 truncate text-xs">{member.name}</div>
-                      <div className="text-[10px] text-slate-500 truncate">{member.role}</div>
+                      <div className="font-bold text-slate-900 truncate text-[10px] sm:text-xs leading-tight">{member.name}</div>
+                      <div className="text-[9px] sm:text-[10px] text-slate-500 truncate hidden sm:block mt-0.5">{member.role}</div>
                     </div>
                   </div>
                 </td>

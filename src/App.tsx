@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Sparkles, CheckCircle2 } from 'lucide-react';
+import { Sparkles, CheckCircle2, Calendar, UserCheck, Palmtree, Users } from 'lucide-react';
 import {
   TeamMember,
   LeaveRequest,
@@ -16,7 +16,8 @@ import {
   generateHealthCompliantRoster,
   auditRoster,
 } from './utils/rosterEngine';
-import { exportRosterToCSV } from './utils/exportUtils';
+import { equalizeLoad } from './utils/equalizer';
+import { exportRosterToCSV, exportRosterToImage, exportRosterToPDF } from './utils/exportUtils';
 import { Header } from './components/Header';
 import { ManpowerBanner } from './components/ManpowerBanner';
 import { HealthSummaryCard } from './components/HealthSummaryCard';
@@ -53,6 +54,15 @@ export default function App() {
     setAssignments(freshRoster);
 
     setToastMessage('Roster Auto-Generated! Applied contiguous shift blocks & 5-day weekly work limits.');
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4000);
+  };
+
+  const handleEqualizeLoad = () => {
+    const equalized = equalizeLoad(assignments, members, leaves, config);
+    setAssignments(equalized);
+    setToastMessage('Workload Equalized! Redistributed night & weekend shifts fairly.');
     setTimeout(() => {
       setToastMessage(null);
     }, 4000);
@@ -119,7 +129,7 @@ export default function App() {
   const approvedLeavesCount = leaves.filter((l) => l.status === 'approved').length;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased pb-12 relative">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased md:pb-12 pb-20 relative">
       {toastMessage && (
         <div className="fixed top-4 right-4 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-in fade-in slide-in-from-top-2 duration-200 max-w-md">
           <div className="p-1 bg-emerald-500/20 text-emerald-400 rounded-lg">
@@ -136,7 +146,12 @@ export default function App() {
         config={config}
         onConfigChange={setConfig}
         onAutoGenerate={handleAutoGenerate}
-        onExportCSV={() => exportRosterToCSV(assignments, members, config)}
+        onEqualizeLoad={handleEqualizeLoad}
+        onExport={(type) => {
+          if (type === 'csv') exportRosterToCSV(assignments, members, config);
+          else if (type === 'pdf') exportRosterToPDF('roster-grid-container', config);
+          else if (type === 'image') exportRosterToImage('roster-grid-container', config);
+        }}
         onOpenAudit={() => setIsAuditOpen(true)}
         onReset={handleReset}
         activeTab={activeTab}
@@ -208,6 +223,51 @@ export default function App() {
         config={config}
         onAutoFix={handleAutoGenerate}
       />
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 flex justify-around items-center pb-safe">
+        <button
+          onClick={() => setActiveTab('grid')}
+          className={`flex flex-col items-center justify-center w-full py-2 ${
+            activeTab === 'grid' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <Calendar className="w-5 h-5 mb-1" />
+          <span className="text-[10px] font-medium">Grid</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('schedules')}
+          className={`flex flex-col items-center justify-center w-full py-2 ${
+            activeTab === 'schedules' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <UserCheck className="w-5 h-5 mb-1" />
+          <span className="text-[10px] font-medium">Timetable</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('leave')}
+          className={`relative flex flex-col items-center justify-center w-full py-2 ${
+            activeTab === 'leave' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <Palmtree className="w-5 h-5 mb-1" />
+          <span className="text-[10px] font-medium">Leave</span>
+          {approvedLeavesCount > 0 && (
+            <span className="absolute top-1 right-1/4 translate-x-2 w-4 h-4 rounded-full bg-slate-900 text-white text-[9px] font-bold flex items-center justify-center">
+              {approvedLeavesCount}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('team')}
+          className={`flex flex-col items-center justify-center w-full py-2 ${
+            activeTab === 'team' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <Users className="w-5 h-5 mb-1" />
+          <span className="text-[10px] font-medium">Team</span>
+        </button>
+      </div>
     </div>
   );
 }

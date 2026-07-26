@@ -1,4 +1,6 @@
 import { ShiftAssignment, TeamMember, RosterConfig } from '../types';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 export function exportRosterToCSV(
   assignments: ShiftAssignment[],
@@ -33,7 +35,6 @@ export function exportRosterToCSV(
       else if (shift === 'Night') nCount++;
       else offCount++;
     }
-
     row.push(mCount.toString(), aCount.toString(), nCount.toString(), offCount.toString());
     rows.push(row);
   });
@@ -49,4 +50,40 @@ export function exportRosterToCSV(
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+export async function exportRosterToImage(elementId: string, config: RosterConfig) {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+  
+  const canvas = await html2canvas(element, { scale: 2 });
+  const imgData = canvas.toDataURL('image/png');
+  
+  const link = document.createElement('a');
+  link.setAttribute('href', imgData);
+  link.setAttribute('download', `Roster_${config.month}_${config.year}.png`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export async function exportRosterToPDF(elementId: string, config: RosterConfig) {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+  
+  const canvas = await html2canvas(element, { scale: 2 });
+  const imgData = canvas.toDataURL('image/png');
+  
+  const pdf = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4'
+  });
+  
+  const imgProps = pdf.getImageProperties(imgData);
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+  pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`Roster_${config.month}_${config.year}.pdf`);
 }
