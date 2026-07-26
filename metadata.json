@@ -1,0 +1,6 @@
+{
+  "name": "Mainframe Console Roster Builder",
+  "description": "Health-conscious roster generator for 24/7 mainframe console teams with circadian rotation, leave constraints, and gap analysis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
