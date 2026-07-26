@@ -142,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => { onExport('csv'); setIsExportOpen(false); }}
                     className="block w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 cursor-pointer"
                   >
-                    CSV
+                    Excel
                   </button>
                   <button
                     onClick={() => { onExport('pdf'); setIsExportOpen(false); }}

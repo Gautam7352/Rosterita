@@ -225,7 +225,7 @@ export default function App() {
       />
 
       {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 flex justify-around items-center pb-safe">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 flex justify-around items-center pb-[env(safe-area-inset-bottom)]">
         <button
           onClick={() => setActiveTab('grid')}
           className={`flex flex-col items-center justify-center w-full py-2 ${
